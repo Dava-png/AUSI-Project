@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Mr. Kicks Mal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../Assets/css/kicks.css">
+</head>
+<body>
+
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-inner">
+                    <i class="fa-solid fa-shoe-prints logo-icon"></i>
+                    <div>
+                        <div class="logo-text">Mr. <span>Kicks</span></div>
+                        <div class="logo-sub">— MAL —</div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="beranda.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Home page</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="products.html" class="nav-link">
+                        <i class="fas fa-box"></i>
+                        <span>Product</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="services.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Our services</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="orders.html" class="nav-link active">
+                        <i class="fas fa-file-alt"></i>
+                        <span>My orders</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="history.html" class="nav-link">
+                        <i class="fas fa-clock"></i>
+                        <span>History</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Chat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="logout-section">
+                <button class="logout-btn" onclick="if(!confirm('Apakah anda yakin ingin logout?'))return;location.href='login.html'">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <h4>Halo, Tol !</h4>
+                        <p>Welcome back</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Page -->
+            <section class="page-section active">
+                <div class="page-header">
+                    <h1 class="page-title">My Orders</h1>
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterOrders('all', this)">All</button>
+                    <button class="filter-tab" onclick="filterOrders('processing', this)">Processed</button>
+                    <button class="filter-tab" onclick="filterOrders('shipped', this)">Sent</button>
+                    <button class="filter-tab" onclick="filterOrders('completed', this)">Delivered</button>
+                    <button class="filter-tab" onclick="filterOrders('cancelled', this)">Cancelled</button>
+                </div>
+
+                <div class="orders-table-container">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Service</th>
+                                <th>Date</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-body">
+                            <tr data-status="completed">
+                                <td>#MRK-24052601</td>
+                                <td>Shoe Cleaning</td>
+                                <td>3 January 2026</td>
+                                <td>Rp. 15.000</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                            </tr>
+                            <tr data-status="processing">
+                                <td>#MRK-24052602</td>
+                                <td>Sole Repair</td>
+                                <td>3 January 2026</td>
+                                <td>Rp. 30.000</td>
+                                <td><span class="status-badge status-processing">Processing</span></td>
+                            </tr>
+                            <tr data-status="shipped">
+                                <td>#MRK-24052603</td>
+                                <td>Shoe Repaint</td>
+                                <td>2 January 2026</td>
+                                <td>Rp. 50.000</td>
+                                <td><span class="status-badge status-shipped">Shipped</span></td>
+                            </tr>
+                            <tr data-status="processing">
+                                <td>#MRK-24052604</td>
+                                <td>Sole Repair</td>
+                                <td>2 January 2026</td>
+                                <td>Rp. 30.000</td>
+                                <td><span class="status-badge status-processing">Processing</span></td>
+                            </tr>
+                            <tr data-status="shipped">
+                                <td>#MRK-24052605</td>
+                                <td>Shoe Cleaning</td>
+                                <td>2 January 2026</td>
+                                <td>Rp. 15.000</td>
+                                <td><span class="status-badge status-shipped">Shipped</span></td>
+                            </tr>
+                            <tr data-status="completed">
+                                <td>#MRK-24052606</td>
+                                <td>Shoe Cleaning</td>
+                                <td>2 January 2026</td>
+                                <td>Rp. 15.000</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                            </tr>
+                            <tr data-status="cancelled">
+                                <td>#MRK-24052607</td>
+                                <td>Shoe Cleaning</td>
+                                <td>1 January 2026</td>
+                                <td>Rp. 15.000</td>
+                                <td><span class="status-badge status-cancelled">Cancelled</span></td>
+                            </tr>
+                            <tr data-status="completed">
+                                <td>#MRK-24052608</td>
+                                <td>Shoe Repaint</td>
+                                <td>1 January 2026</td>
+                                <td>Rp. 50.000</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                            </tr>
+                            <tr data-status="completed">
+                                <td>#MRK-24052609</td>
+                                <td>Sole Repair</td>
+                                <td>1 January 2026</td>
+                                <td>Rp. 30.000</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../Assets/js/kicks.js"></script>
+</body>
+</html>

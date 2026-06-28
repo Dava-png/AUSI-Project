@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Mr. Kicks Mal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../Assets/css/kicks.css">
+    <style>
+        .proof-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); vertical-align: middle; transition: transform .2s; }
+        .proof-thumb:hover { transform: scale(1.15); }
+        .no-proof { color: var(--color-text-muted); font-size: 11px; opacity: 0.5; }
+        .btn-terima { padding: 6px 14px; background: #22c55e; color: #fff; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; font-family: var(--font-primary); cursor: pointer; transition: all .2s; white-space: nowrap; }
+        .btn-terima:hover { background: #16a34a; transform: translateY(-1px); }
+        .btn-terima:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .status-with-icon { display: flex; align-items: center; gap: 6px; }
+    </style>
+</head>
+<body>
+
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-inner">
+                    <i class="fa-solid fa-shoe-prints logo-icon"></i>
+                    <div>
+                        <div class="logo-text">Mr. <span>Kicks</span></div>
+                        <div class="logo-sub">— MAL —</div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="beranda.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Home page</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="products.html" class="nav-link">
+                        <i class="fas fa-box"></i>
+                        <span>Product</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="services.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Our services</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="orders.html" class="nav-link active">
+                        <i class="fas fa-file-alt"></i>
+                        <span>My orders</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="history.html" class="nav-link">
+                        <i class="fas fa-clock"></i>
+                        <span>History</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Chat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+
+            </ul>
+
+            <div class="logout-section">
+                <button class="logout-btn" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <h4>Halo, Tol !</h4>
+                        <p>Welcome back</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Page -->
+            <section class="page-section active">
+                <div class="page-header">
+                    <h1 class="page-title">My Orders</h1>
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterOrders('all', this)">All</button>
+                    <button class="filter-tab" onclick="filterOrders('processing', this)">Processed</button>
+                    <button class="filter-tab" onclick="filterOrders('shipped', this)">Sent</button>
+                    <button class="filter-tab" onclick="filterOrders('completed', this)">Delivered</button>
+                    <button class="filter-tab" onclick="filterOrders('cancelled', this)">Cancelled</button>
+                </div>
+
+                <div class="orders-table-container">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Service</th>
+                                <th>Date</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Bukti Foto</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-body">
+                            <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--color-text-muted);"><i class="fas fa-inbox" style="font-size:36px;display:block;margin-bottom:12px;"></i>Belum ada pesanan</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../Assets/js/api.js"></script>
+    <script src="../../Assets/js/kicks.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                const userData = JSON.parse(sessionStorage.getItem('mrkicks_user') || '{}');
+                const orders = await api.request('GET', '/orders?nama=' + encodeURIComponent(userData.name || ''));
+                const tbody = document.getElementById('orders-body');
+                tbody.innerHTML = '';
+                orders.forEach(o => {
+                    const tr = document.createElement('tr');
+                    tr.dataset.status = o.status;
+                    const statusLabels = { 'processing':'Diproses', 'shipped':'Dikirim', 'delivered':'Diantar', 'completed':'Selesai', 'cancelled':'Dibatalkan' };
+                    const label = statusLabels[o.status] || o.status.charAt(0).toUpperCase() + o.status.slice(1);
+                    const statusHtml = '<span class="status-badge status-' + o.status + '">' + label + '</span>';
+                    let proofHtml = '<span class="no-proof">-</span>';
+                    if (o.proof_photo) {
+                        proofHtml = '<img src="/uploads/proof/' + o.proof_photo + '" class="proof-thumb" onclick="window.open(\'/uploads/proof/' + o.proof_photo + '\')" title="Lihat bukti">';
+                    } else if (o.status === 'completed') {
+                        proofHtml = '<span class="no-proof">Selesai</span>';
+                    } else if (o.status === 'shipped' || o.status === 'delivered') {
+                        proofHtml = '<span class="no-proof" style="color:#3b82f6;">Menunggu</span>';
+                    }
+                    let actionHtml = '';
+                    if (o.status === 'shipped' || o.status === 'delivered') {
+                        actionHtml = '<button class="btn-terima" onclick="terimaOrder(\'' + o.id + '\', this)"><i class="fas fa-check"></i> Terima</button>';
+                    }
+                    tr.innerHTML = '<td>' + o.id + '</td><td>' + o.item + '</td><td>' + o.date + '</td><td>Rp ' + Number(o.total).toLocaleString('id-ID') + '</td><td>' + statusHtml + '</td><td>' + proofHtml + '</td><td>' + actionHtml + '</td>';
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {
+                // Fallback to static rows if API offline
+            }
+        });
+
+        async function terimaOrder(id, btn) {
+            if (!confirm('Konfirmasi bahwa pesanan ' + id + ' sudah diterima?')) return;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            try {
+                const userData = JSON.parse(sessionStorage.getItem('mrkicks_user') || '{}');
+                await api.request('PUT', '/orders/' + encodeURIComponent(id) + '/terima', { nama: userData.name || '' });
+                // Reload to show updated status
+                location.reload();
+            } catch (e) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Terima';
+                alert('Gagal: ' + e.message);
+            }
+        }
+    </script>
+</body>
+</html>

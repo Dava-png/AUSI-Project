@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Kurir - Mr. Kicks Mal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../Assets/css/kicks.css">
+    <link rel="stylesheet" href="../../Assets/css/admin.css">
+    <style>
+        .kurir-container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+        .kurir-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+        .kurir-header h1 { font-size: 1.4rem; margin: 0; margin-right: auto; white-space: nowrap; }
+        .kurir-header h1 i { color: var(--color-accent-orange); margin-right: 10px; }
+        .kurir-user { display: flex; align-items: center; gap: 12px; }
+        .kurir-user .avatar { width: 40px; height: 40px; min-width: 40px; aspect-ratio: 1; border-radius: 50%; background: var(--color-accent-orange); display: flex; align-items: center; justify-content: center; color: #000; font-weight: 700; font-size: 1rem; overflow: hidden; flex-shrink: 0; }
+        .kurir-user .info { }
+        .kurir-user .info h4 { margin: 0; font-size: 0.9rem; white-space: nowrap; }
+        .kurir-user .info p { margin: 0; font-size: 0.75rem; color: var(--color-text-muted); white-space: nowrap; }
+        .kurir-user .logout-btn { padding: 6px 14px; font-size: 0.75rem; background: transparent; border: 1px solid var(--border-gold); border-radius: 6px; color: var(--color-text-muted); cursor: pointer; font-family: var(--font-primary); }
+        .kurir-user .logout-btn:hover { border-color: #ff4444; color: #ff4444; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 28px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 12px; padding: 18px; text-align: center; }
+        .stat-card .num { font-size: 1.6rem; font-weight: 700; }
+        .stat-card .label { font-size: 0.75rem; color: var(--color-text-muted); margin-top: 4px; }
+        .stat-card .num.orange { color: var(--color-accent-orange); }
+        .stat-card .num.blue { color: #2196f3; }
+        .stat-card .num.green { color: #4caf50; }
+        .stat-card .num.gray { color: var(--color-text-muted); }
+
+        .section-tabs { display: flex; gap: 4px; margin-bottom: 16px; background: var(--bg-card); border-radius: 10px; padding: 4px; border: 1px solid var(--border-gold); flex-wrap: wrap; }
+        .section-tab { padding: 10px 20px; border: none; background: none; color: var(--color-text-muted); font-size: 0.85rem; font-family: var(--font-primary); cursor: pointer; border-radius: 8px; transition: all 0.2s; font-weight: 500; }
+        .section-tab:hover { color: var(--color-text-main); }
+        .section-tab.active { background: var(--color-accent-orange); color: #000; font-weight: 600; }
+        .section-tab .count { margin-left: 6px; opacity: 0.7; font-size: 0.75rem; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .order-list { display: flex; flex-direction: column; gap: 10px; }
+        .order-card { display: flex; justify-content: space-between; align-items: center; gap: 16px; background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 12px; padding: 16px 20px; }
+        .order-card .left { flex: 1; min-width: 0; }
+        .order-card .order-id { font-size: 0.7rem; color: var(--color-text-muted); margin-bottom: 2px; }
+        .order-card .order-item { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+        .order-card .order-customer { font-size: 0.8rem; color: var(--color-text-muted); }
+        .order-card .order-customer i { color: var(--color-accent-orange); margin-right: 4px; width: 14px; }
+        .order-card .order-meta { font-size: 0.75rem; color: var(--color-text-muted); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 12px; }
+        .order-card .order-meta i { color: var(--color-accent-orange); margin-right: 3px; width: 12px; }
+        .order-card .right { flex-shrink: 0; display: flex; gap: 8px; align-items: center; }
+
+        .btn-ambil { padding: 10px 22px; background: var(--color-accent-orange); color: #000; border: none; border-radius: 8px; font-weight: 600; font-size: 0.85rem; font-family: var(--font-primary); cursor: pointer; transition: all 0.2s; }
+        .btn-ambil:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,159,0,0.3); }
+        .btn-ship { padding: 10px 22px; background: transparent; color: #4caf50; border: 1px solid #4caf50; border-radius: 8px; font-weight: 600; font-size: 0.85rem; font-family: var(--font-primary); cursor: pointer; transition: all 0.2s; }
+        .btn-ship:hover { background: rgba(76,175,80,0.1); }
+        .btn-complete { padding: 10px 22px; background: #4caf50; color: #fff; border: none; border-radius: 8px; font-weight: 600; font-size: 0.85rem; font-family: var(--font-primary); cursor: pointer; transition: all 0.2s; }
+        .btn-complete:hover { background: #43a047; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(76,175,80,0.3); }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--color-text-muted); }
+        .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4; }
+
+        @media (max-width: 600px) {
+            .kurir-container { padding: 16px; }
+            .order-card { flex-direction: column; align-items: stretch; }
+            .order-card .right { justify-content: flex-end; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .proof-thumb { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; cursor: pointer; border: 1px solid var(--border-gold); vertical-align: middle; }
+        .selesai-actions { display: flex; gap: 12px; align-items: center; padding-top: 10px; border-top: 1px solid var(--border-gold); margin-top: 4px; }
+        .selesai-actions .photo-inline { flex: 1; border: 2px dashed var(--border-gold); border-radius: 8px; padding: 14px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .selesai-actions .photo-inline:hover { border-color: var(--color-accent-orange); background: rgba(255,159,0,0.05); }
+        .selesai-actions .photo-inline i { font-size: 1.3rem; color: var(--color-text-muted); display: block; margin-bottom: 4px; }
+        .selesai-actions .photo-inline .photo-label { font-size: 0.75rem; color: var(--color-text-muted); }
+        .selesai-actions .photo-inline input[type=file] { display: none; }
+        .selesai-actions .photo-inline .photo-preview { display: none; max-width: 100%; max-height: 100px; border-radius: 6px; margin-top: 6px; }
+        .selesai-actions .photo-inline.has-photo { border-color: #4caf50; border-style: solid; padding: 8px; }
+        .selesai-actions .photo-inline.has-photo i { display: none; }
+        .selesai-actions .photo-inline.has-photo .photo-label { font-size: 0.7rem; }
+        .selesai-actions .photo-inline.has-photo .photo-preview { display: block; }
+    </style>
+</head>
+<body>
+    <div class="kurir-container" id="app">
+        <!-- Header -->
+        <div class="kurir-header">
+            <h1><i class="fas fa-truck"></i> Panel Kurir</h1>
+            <div class="kurir-user">
+                <div class="avatar" id="avatar">A</div>
+                <div class="info">
+                    <h4 id="kurirName">-</h4>
+                    <p>Kurir</p>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card"><div class="num orange" id="statTersedia">0</div><div class="label">Tersedia</div></div>
+            <div class="stat-card"><div class="num blue" id="statDiambil">0</div><div class="label">Diambil</div></div>
+            <div class="stat-card"><div class="num green" id="statSelesai">0</div><div class="label">Selesai</div></div>
+            <div class="stat-card"><div class="num gray" id="statTotal">0</div><div class="label">Total Dikirim</div></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="section-tabs">
+            <button class="section-tab active" onclick="switchTab('tersedia', this)"><i class="fas fa-box"></i> Tersedia <span class="count" id="tabCountTersedia">0</span></button>
+            <button class="section-tab" onclick="switchTab('diambil', this)"><i class="fas fa-hand-paper"></i> Diambil <span class="count" id="tabCountDiambil">0</span></button>
+            <button class="section-tab" onclick="switchTab('selesai', this)"><i class="fas fa-check-circle"></i> Selesai <span class="count" id="tabCountSelesai">0</span></button>
+            <button class="section-tab" onclick="switchTab('riwayat', this)"><i class="fas fa-history"></i> Riwayat <span class="count" id="tabCountRiwayat">0</span></button>
+        </div>
+
+        <!-- Tab: Tersedia -->
+        <div class="tab-content active" id="tabTersedia">
+            <div class="order-list" id="listTersedia">
+                <div class="empty-state"><i class="fas fa-inbox"></i> Belum ada pesanan yang tersedia</div>
+            </div>
+        </div>
+
+        <!-- Tab: Diambil -->
+        <div class="tab-content" id="tabDiambil">
+            <div class="order-list" id="listDiambil">
+                <div class="empty-state"><i class="fas fa-inbox"></i> Belum ada pesanan diambil</div>
+            </div>
+        </div>
+
+        <!-- Tab: Selesai -->
+        <div class="tab-content" id="tabSelesai">
+            <div class="order-list" id="listSelesai">
+                <div class="empty-state"><i class="fas fa-check-circle"></i> Belum ada pesanan yang siap diselesaikan</div>
+            </div>
+        </div>
+
+        <!-- Tab: Riwayat -->
+        <div class="tab-content" id="tabRiwayat">
+            <div class="order-list" id="listRiwayat">
+                <div class="empty-state"><i class="fas fa-clock"></i> Belum ada riwayat</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../Assets/js/api.js"></script>
+    <script>
+        let kurirUser = null;
+
+        // ─── Auth check ────────────────────────────────────────────────
+
+        (function init() {
+            const stored = sessionStorage.getItem('mrkicks_user');
+            if (!stored) { window.location.href = '../login.html'; return; }
+            try {
+                kurirUser = JSON.parse(stored);
+                if (kurirUser.role !== 'kurir') { window.location.href = '../login.html'; return; }
+            } catch (e) { window.location.href = '../login.html'; return; }
+
+            // Selalu ambil data terbaru dari database
+            api.getUser().then(fresh => {
+                kurirUser = fresh;
+                sessionStorage.setItem('mrkicks_user', JSON.stringify(fresh));
+                renderUser();
+                loadData();
+            }).catch(() => {
+                renderUser();
+                loadData();
+            });
+
+            setInterval(loadData, 15000);
+        })();
+
+        function renderUser() {
+            document.getElementById('kurirName').textContent = kurirUser.name;
+            document.getElementById('avatar').textContent = kurirUser.name.charAt(0).toUpperCase();
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('mrkicks_user');
+            api.logout().catch(() => {});
+            window.location.href = '../login.html';
+        }
+
+        // ─── Tab switching ─────────────────────────────────────────────
+
+        function switchTab(name, btn) {
+            document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+        }
+
+        // ─── Load data ─────────────────────────────────────────────────
+
+        async function loadData() {
+            try {
+                const data = await api.request('GET', '/orders/kurir?nama=' + encodeURIComponent(kurirUser.name));
+                renderStats(data);
+                renderTersedia(data.tersedia);
+                renderDiambil(data.diambil);
+                renderSelesai(data.selesai);
+                renderRiwayat(data.riwayat);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderStats(data) {
+            document.getElementById('statTersedia').textContent = data.tersedia.length;
+            document.getElementById('statDiambil').textContent = data.diambil.length;
+            document.getElementById('statSelesai').textContent = data.selesai.length;
+            document.getElementById('statTotal').textContent = data.tersedia.length + data.diambil.length + data.riwayat.length;
+            document.getElementById('tabCountTersedia').textContent = data.tersedia.length;
+            document.getElementById('tabCountDiambil').textContent = data.diambil.length;
+            document.getElementById('tabCountSelesai').textContent = data.selesai.length;
+            document.getElementById('tabCountRiwayat').textContent = data.riwayat.length;
+        }
+
+        function renderTersedia(orders) {
+            const el = document.getElementById('listTersedia');
+            if (orders.length === 0) {
+                el.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Belum ada pesanan yang dapat diambil</div>';
+                return;
+            }
+            el.innerHTML = orders.map(o => `
+                <div class="order-card">
+                    <div class="left">
+                        <div class="order-id">${o.id}</div>
+                        <div class="order-item">${o.item}</div>
+                        <div class="order-customer"><i class="fas fa-user"></i>${o.customer}</div>
+                        <div class="order-meta">
+                            <span><i class="fas fa-map-marker-alt"></i>${o.pickup_address || '-'}</span>
+                            <span><i class="fas fa-calendar-alt"></i>${o.pickup_date || '-'}</span>
+                            <span><i class="fas fa-calendar"></i>Pesan: ${o.date}</span>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <button class="btn-ambil" onclick="ambilOrder('${o.id}')"><i class="fas fa-hand-paper"></i> Ambil</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderDiambil(orders) {
+            const el = document.getElementById('listDiambil');
+            if (orders.length === 0) {
+                el.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> Belum ada pesanan yang diambil</div>';
+                return;
+            }
+            el.innerHTML = orders.map(o => `
+                <div class="order-card">
+                    <div class="left">
+                        <div class="order-id">${o.id}</div>
+                        <div class="order-item">${o.item}</div>
+                        <div class="order-customer"><i class="fas fa-user"></i>${o.customer}</div>
+                        <div class="order-meta">
+                            <span><i class="fas fa-map-marker-alt"></i>${o.pickup_address || '-'}</span>
+                            <span><i class="fas fa-calendar-alt"></i>${o.pickup_date || '-'}</span>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <button class="btn-ship" onclick="shipOrder('${o.id}')"><i class="fas fa-shipping-fast"></i> Konfirmasi Kirim</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderSelesai(orders) {
+            const el = document.getElementById('listSelesai');
+            if (orders.length === 0) {
+                el.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i> Belum ada pesanan yang siap diselesaikan</div>';
+                return;
+            }
+            el.innerHTML = orders.map(o => `
+                <div class="order-card" style="flex-direction:column;align-items:stretch;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;">
+                        <div class="left">
+                            <div class="order-id">${o.id}</div>
+                            <div class="order-item">${o.item}</div>
+                            <div class="order-customer"><i class="fas fa-user"></i>${o.customer}</div>
+                            <div class="order-meta">
+                                <span><i class="fas fa-map-marker-alt"></i>${o.pickup_address || '-'}</span>
+                                <span><i class="fas fa-calendar-alt"></i>${o.pickup_date || '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="selesai-actions">
+                        <div class="photo-inline" id="photoArea_${o.id}" onclick="document.getElementById('photoInput_${o.id}').click()">
+                            <i class="fas fa-camera"></i>
+                            <div class="photo-label">Klik upload foto bukti</div>
+                            <input type="file" id="photoInput_${o.id}" accept="image/*" onchange="previewInlinePhoto('${o.id}', event)">
+                            <img id="preview_${o.id}" class="photo-preview">
+                        </div>
+                        <button class="btn-complete" onclick="completeWithPhoto('${o.id}')" id="btnSelesai_${o.id}"><i class="fas fa-check-circle"></i> Selesaikan</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRiwayat(orders) {
+            const el = document.getElementById('listRiwayat');
+            if (orders.length === 0) {
+                el.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i> Belum ada riwayat pengiriman</div>';
+                return;
+            }
+            el.innerHTML = orders.map(o => `
+                <div class="order-card">
+                    <div class="left">
+                        <div class="order-id">${o.id}</div>
+                        <div class="order-item">${o.item}</div>
+                        <div class="order-customer"><i class="fas fa-user"></i>${o.customer}</div>
+                        <div class="order-meta"><span><i class="fas fa-calendar"></i>Selesai: ${o.date}</span></div>
+                    </div>
+                    <div class="right" style="gap:8px;">
+                        ${o.proof_photo ? `<img src="/uploads/proof/${o.proof_photo}" class="proof-thumb" onclick="window.open('/uploads/proof/${o.proof_photo}')" title="Lihat bukti">` : ''}
+                        <span style="color:#4caf50;font-size:0.8rem;"><i class="fas fa-check-circle"></i> Selesai</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ─── Actions ───────────────────────────────────────────────────
+
+        async function ambilOrder(id) {
+            try {
+                await api.request('PUT', '/orders/' + encodeURIComponent(id) + '/ambil', { nama: kurirUser.name });
+                showToast('Pesanan berhasil diambil');
+                loadData();
+            } catch (e) {
+                showToast(e.message || 'Gagal');
+            }
+        }
+
+        async function shipOrder(id) {
+            if (!confirm('Konfirmasi pengiriman pesanan ' + id + '?')) return;
+            try {
+                await api.request('PUT', '/orders/' + encodeURIComponent(id) + '/ship', { nama: kurirUser.name });
+                showToast('Pesanan dikonfirmasi dikirim');
+                loadData();
+            } catch (e) {
+                showToast(e.message || 'Gagal');
+            }
+        }
+
+        const selectedFiles = {};
+
+        function previewInlinePhoto(id, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            selectedFiles[id] = file;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const area = document.getElementById('photoArea_' + id);
+                area.classList.add('has-photo');
+                area.querySelector('i').style.display = 'none';
+                area.querySelector('.photo-label').textContent = file.name;
+                const img = document.getElementById('preview_' + id);
+                img.src = e.target.result;
+                img.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function completeWithPhoto(id) {
+            const btn = document.getElementById('btnSelesai_' + id);
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const formData = new FormData();
+                formData.append('nama', kurirUser.name);
+                if (selectedFiles[id]) formData.append('proof_photo', selectedFiles[id]);
+
+                const res = await fetch('/api/orders/' + encodeURIComponent(id) + '/complete', {
+                    method: 'PUT',
+                    body: formData,
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Gagal');
+
+                showToast('Pesanan selesai' + (selectedFiles[id] ? ' + foto bukti' : ''));
+                delete selectedFiles[id];
+                loadData();
+            } catch (e) {
+                showToast(e.message || 'Gagal');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Selesaikan';
+            }
+        }
+
+        function showToast(msg) {
+            let t = document.getElementById('toast-kurir');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'toast-kurir';
+                Object.assign(t.style, {
+                    position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
+                    background: 'var(--bg-card)', border: '1px solid var(--border-gold)',
+                    borderRadius: '12px', padding: '14px 24px', color: 'var(--color-text-main)',
+                    fontSize: '0.85rem', zIndex: '10000', display: 'flex', alignItems: 'center',
+                    gap: '10px', opacity: '0', transition: 'opacity 0.3s ease',
+                    fontFamily: 'var(--font-primary)'
+                });
+                t.innerHTML = '<i class="fas fa-check-circle" style="color:var(--color-accent-orange);"></i> <span id="toast-kurir-msg"></span>';
+                document.body.appendChild(t);
+            }
+            document.getElementById('toast-kurir-msg').textContent = msg;
+            t.style.opacity = '1';
+            setTimeout(() => { t.style.opacity = '0'; }, 2500);
+        }
+    </script>
+</body>
+</html>

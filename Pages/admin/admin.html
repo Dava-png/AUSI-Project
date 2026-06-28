@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Mr. Kicks Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../Assets/css/kicks.css">
+    <link rel="stylesheet" href="../../Assets/css/admin.css">
+</head>
+<body>
+
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-inner">
+                    <i class="fa-solid fa-shoe-prints logo-icon"></i>
+                    <div>
+                        <div class="logo-text">Mr. <span>Kicks</span></div>
+                        <div class="logo-sub">— ADMIN —</div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="admin.html" class="nav-link active">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-products.html" class="nav-link">
+                        <i class="fas fa-box"></i>
+                        <span>Products</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-orders.html" class="nav-link">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-chat.html" class="nav-link">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Chat</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="logout-section">
+                <button class="logout-btn" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log out</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="user-info">
+                        <h4>Admin Panel</h4>
+                        <p>Dashboard</p>
+                    </div>
+                </div>
+            </div>
+
+            <section class="page-section active">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Dashboard</h1>
+                        <p class="page-subtitle">Ringkasan toko Mr. Kicks.</p>
+                    </div>
+                </div>
+
+                <div class="admin-content">
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-box"></i></div>
+                            <div class="stat-number" id="stat-products">0</div>
+                            <div class="stat-label">Total Products</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                            <div class="stat-number" id="stat-orders">0</div>
+                            <div class="stat-label">Total Orders</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+                            <div class="stat-number" id="stat-pending">0</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-comment-dots"></i></div>
+                            <div class="stat-number" id="stat-chats">0</div>
+                            <div class="stat-label">Chats</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toast-msg">Berhasil disimpan</span></div>
+
+    <script src="../../Assets/js/api.js"></script>
+    <script src="../../Assets/js/kicks.js"></script>
+    <script src="../../Assets/js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const session = JSON.parse(sessionStorage.getItem('mrkicks_user') || '{}');
+            if (session.role !== 'admin') { window.location.href = '../login.html'; return; }
+            await seedData();
+            const d = await getData();
+            document.getElementById('stat-products').textContent = d.products.length;
+            document.getElementById('stat-orders').textContent = d.orders.length;
+            document.getElementById('stat-pending').textContent = d.orders.filter(o => o.status === 'processing' || o.status === 'shipped').length;
+            document.getElementById('stat-chats').textContent = d.chats.length;
+
+            const toggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            if (toggle && sidebar) {
+                toggle.addEventListener('click', function () { sidebar.classList.toggle('active'); });
+            }
+        });
+    </script>
+</body>
+</html>

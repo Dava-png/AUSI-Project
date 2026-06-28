@@ -185,6 +185,9 @@ body {
     align-items: center;
     margin-bottom: 30px;
 }
+.top-bar .user-profile:only-child {
+    margin-left: auto;
+}
 
 .search-box {
     position: relative;
@@ -396,19 +399,16 @@ body {
 .service-image {
     width: 120px;
     height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: 12px;
+    overflow: hidden;
     flex-shrink: 0;
 }
 
 .service-image img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    transform: rotate(-15deg);
-    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
-    border-radius: 8px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
 }
 
 /* ==========================================================================
@@ -698,6 +698,7 @@ body {
 }
 
 .status-completed { background: #22c55e; color: white; }
+.status-delivered { background: #8b5cf6; color: white; }
 .status-processing { background: #f59e0b; color: white; }
 .status-shipped { background: #3b82f6; color: white; }
 .status-cancelled { background: #ef4444; color: white; }
@@ -882,11 +883,13 @@ body {
     align-items: center;
     justify-content: center;
     margin-bottom: 12px;
+    overflow: hidden;
 }
-
-.product-icon {
-    font-size: 2.5rem;
-    color: rgba(255,255,255,0.15);
+.product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
 }
 
 .product-name {
@@ -948,12 +951,14 @@ body {
 .service-rec-icon {
     width: 54px;
     height: 54px;
-    background: rgba(255,159,0,0.1);
     border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
     flex-shrink: 0;
+}
+.service-rec-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .service-rec-icon i {
@@ -1432,31 +1437,6 @@ body {
     text-align: right;
 }
 
-.chat-panel-footer {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    background: var(--bg-sidebar);
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.chat-panel-footer input {
-    flex: 1;
-    padding: 10px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    background: var(--bg-main);
-    color: var(--color-text-main);
-    font-size: 0.85rem;
-    font-family: var(--font-primary);
-    outline: none;
-}
-
-.chat-panel-footer input:focus { border-color: var(--color-accent-orange); }
-
-.chat-panel-footer input::placeholder { color: rgba(255, 255, 255, 0.25); }
-
 .chat-send-btn {
     width: 40px;
     height: 40px;
@@ -1474,6 +1454,62 @@ body {
 }
 
 .chat-send-btn:hover { transform: scale(1.05); }
+
+/* Admin Picker */
+.admin-picker { text-align: center; padding: 10px 0; }
+.admin-picker-icon { font-size: 2.2rem; color: var(--color-accent-orange); margin-bottom: 10px; }
+.admin-picker-title { margin: 0 0 4px; color: var(--color-text-main); font-size: 1.05rem; }
+.admin-picker-sub { margin: 0 0 18px; color: var(--color-text-muted); font-size: 0.8rem; }
+.admin-picker-list { display: flex; flex-direction: column; gap: 8px; }
+.admin-picker-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; background: var(--bg-main); color: var(--color-text-main);
+    font-size: 0.85rem; cursor: pointer; transition: all var(--transition-speed) ease;
+    font-family: var(--font-primary);
+}
+.admin-picker-btn:hover { border-color: var(--color-accent-orange); background: rgba(255,159,0,0.08); }
+.admin-picker-btn i { color: var(--color-accent-orange); font-size: 1.1rem; }
+
+/* Chat Page Layout (inline chat di chat.html) */
+.chat-page-layout {
+    background: var(--bg-card);
+    border: 1px solid var(--border-gold);
+    border-radius: 16px;
+    overflow: hidden;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+.chat-page-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.chat-page-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg-sidebar);
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+.chat-page-footer input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    background: var(--bg-main);
+    color: var(--color-text-main);
+    font-size: 0.85rem;
+    font-family: var(--font-primary);
+    outline: none;
+}
+.chat-page-footer input:focus { border-color: var(--color-accent-orange); }
+.chat-page-footer input::placeholder { color: rgba(255,255,255,0.25); }
 
 /* ==========================================================================
    RESPONSIVE
@@ -1550,6 +1586,157 @@ body {
         bottom: 80px;
     }
     .chat-bubble { bottom: 16px; right: 16px; }
+}
+
+/* Calendar Picker */
+.calendar-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.calendar-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-gold);
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    margin-top: 13px;
+    transition: border-color 0.2s;
+}
+
+.calendar-input:hover {
+    border-color: var(--color-accent-orange);
+}
+
+.calendar-input i {
+    color: var(--color-accent-orange);
+    font-size: 1rem;
+}
+
+.calendar-input span {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    flex: 1;
+}
+
+.calendar-input span.selected {
+    color: var(--color-text-main);
+}
+
+.calendar-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-gold);
+    border-radius: 12px;
+    padding: 16px;
+    z-index: 100;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    display: none;
+}
+
+.calendar-dropdown.open {
+    display: block;
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.calendar-header h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--color-text-main);
+    font-weight: 600;
+}
+
+.calendar-nav {
+    background: none;
+    border: 1px solid var(--border-gold);
+    color: var(--color-text-main);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.calendar-nav:hover {
+    border-color: var(--color-accent-orange);
+    color: var(--color-accent-orange);
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: 6px;
+}
+
+.calendar-weekday {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    padding: 4px 0;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--color-text-main);
+    transition: all 0.15s;
+    border: none;
+    background: none;
+    font-family: var(--font-primary);
+}
+
+.calendar-day:hover:not(.disabled):not(.empty) {
+    background: rgba(255,159,0,0.12);
+    color: var(--color-accent-orange);
+}
+
+.calendar-day.today {
+    border: 1px solid var(--border-gold);
+}
+
+.calendar-day.selected {
+    background: var(--color-accent-orange);
+    color: #000;
+    font-weight: 600;
+}
+
+.calendar-day.disabled {
+    color: var(--color-text-muted);
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.calendar-day.empty {
+    cursor: default;
 }
 
 /* Mobile Hamburger */

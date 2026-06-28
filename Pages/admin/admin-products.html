@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Mr. Kicks Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../Assets/css/kicks.css">
+    <link rel="stylesheet" href="../../Assets/css/admin.css">
+</head>
+<body>
+
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-inner">
+                    <i class="fa-solid fa-shoe-prints logo-icon"></i>
+                    <div>
+                        <div class="logo-text">Mr. <span>Kicks</span></div>
+                        <div class="logo-sub">— ADMIN —</div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="admin.html" class="nav-link">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-products.html" class="nav-link active">
+                        <i class="fas fa-box"></i>
+                        <span>Products</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-orders.html" class="nav-link">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-chat.html" class="nav-link">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Chat</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="logout-section">
+                <button class="logout-btn" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log out</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="productSearch" placeholder="Search...">
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="user-info">
+                        <h4>Admin Panel</h4>
+                        <p>Manage Products</p>
+                    </div>
+                </div>
+            </div>
+
+            <section class="page-section active">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Products</h1>
+                        <p class="page-subtitle">Kelola produk jualan.</p>
+                    </div>
+                </div>
+
+                <div class="admin-content">
+                    <button class="btn-add" onclick="openProductModal()"><i class="fas fa-plus"></i> Tambah Produk</button>
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama Produk</th>
+                                    <th>Kategori</th>
+                                    <th>Harga</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="products-empty" style="display:none;">
+                        <i class="fas fa-box-open"></i>
+                        <h3>Belum ada produk</h3>
+                        <p>Klik "Tambah Produk" untuk menambahkan produk pertama.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal-box">
+            <h2 id="modal-title">Tambah Produk</h2>
+            <div class="form-group">
+                <label>Nama Produk</label>
+                <input type="text" id="product-name" placeholder="Nama sepatu...">
+            </div>
+            <div class="form-group">
+                <label>Kategori</label>
+                <select id="product-category">
+                    <option value="men">Men</option>
+                    <option value="women">Women</option>
+                    <option value="olahraga">Olahraga</option>
+                    <option value="style">Style</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Harga (Rp)</label>
+                <input type="number" id="product-price" placeholder="Contoh: 2379000" min="0">
+            </div>
+            <div class="form-group">
+                <label>Deskripsi</label>
+                <input type="text" id="product-desc" placeholder="Contoh: Men's shoes">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeProductModal()">Batal</button>
+                <button class="btn-save" id="modal-save-btn" onclick="saveProduct()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toast-msg">Berhasil disimpan</span></div>
+
+    <script src="../../Assets/js/api.js"></script>
+    <script src="../../Assets/js/kicks.js"></script>
+    <script src="../../Assets/js/admin.js"></script>
+    <script>
+        let editingProductId = null;
+
+        async function renderProducts() {
+            const d = await getData();
+            const tbody = document.getElementById('products-table-body');
+            const empty = document.getElementById('products-empty');
+            tbody.innerHTML = '';
+            if (d.products.length === 0) { empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            const catLabels = { men: 'Men', women: 'Women', olahraga: 'Olahraga', style: 'Style' };
+            d.products.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + p.id + '</td><td>' + p.title + '</td><td>' + (catLabels[p.category] || p.category) + '</td><td>' + formatPrice(p.price) + '</td><td class="actions"><button class="btn-edit" onclick="editProduct(\'' + p.id + '\')"><i class="fas fa-edit"></i> Edit</button><button class="btn-delete" onclick="deleteProduct(\'' + p.id + '\')"><i class="fas fa-trash"></i> Hapus</button></td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openProductModal() {
+            editingProductId = null;
+            document.getElementById('modal-title').textContent = 'Tambah Produk';
+            document.getElementById('product-name').value = '';
+            document.getElementById('product-category').value = 'men';
+            document.getElementById('product-price').value = '';
+            document.getElementById('product-desc').value = '';
+            document.getElementById('modal-save-btn').textContent = 'Simpan';
+            document.getElementById('productModal').classList.add('open');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('open');
+            editingProductId = null;
+        }
+
+        async function saveProduct() {
+            const name = document.getElementById('product-name').value.trim();
+            const category = document.getElementById('product-category').value;
+            const price = parseInt(document.getElementById('product-price').value);
+            const desc = document.getElementById('product-desc').value.trim();
+            if (!name || !price) { showToast('Lengkapi semua field!'); return; }
+            try {
+                if (editingProductId) {
+                    await api.updateProduct(editingProductId, { title: name, category, price, desc });
+                    showToast('Produk berhasil diperbarui');
+                } else {
+                    await api.createProduct({ title: name, category, price, desc });
+                    showToast('Produk berhasil ditambahkan');
+                }
+                closeProductModal();
+                await renderProducts();
+            } catch (err) {
+                showToast('Gagal menyimpan produk');
+            }
+        }
+
+        async function editProduct(id) {
+            const d = await getData();
+            const p = d.products.find(x => x.id === id);
+            if (!p) return;
+            editingProductId = id;
+            document.getElementById('modal-title').textContent = 'Edit Produk';
+            document.getElementById('product-name').value = p.title;
+            document.getElementById('product-category').value = p.category;
+            document.getElementById('product-price').value = p.price;
+            document.getElementById('product-desc').value = p.desc;
+            document.getElementById('modal-save-btn').textContent = 'Simpan Perubahan';
+            document.getElementById('productModal').classList.add('open');
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Yakin ingin menghapus produk ini?')) return;
+            try {
+                await api.deleteProduct(id);
+                await renderProducts();
+                showToast('Produk berhasil dihapus');
+            } catch (err) {
+                showToast('Gagal menghapus produk');
+            }
+        }
+
+        document.getElementById('productModal').addEventListener('click', function (e) {
+            if (e.target === this) closeProductModal();
+        });
+
+        function filterProductTable() {
+            const q = document.getElementById('productSearch').value.toLowerCase();
+            document.querySelectorAll('#products-table-body tr').forEach(tr => {
+                tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const session = JSON.parse(sessionStorage.getItem('mrkicks_user') || '{}');
+            if (session.role !== 'admin') { window.location.href = '../login.html'; return; }
+            await seedData();
+            await renderProducts();
+            document.getElementById('productSearch').addEventListener('input', filterProductTable);
+            const toggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            if (toggle && sidebar) { toggle.addEventListener('click', function () { sidebar.classList.toggle('active'); }); }
+        });
+    </script>
+</body>
+</html>

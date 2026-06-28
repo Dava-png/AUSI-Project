@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Kurir - Mr. Kicks Mal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../Assets/css/kicks.css">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .login-card { max-width: 380px; width: 100%; margin: 20px; background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: 16px; padding: 36px 28px; text-align: center; }
+        .login-card .icon { font-size: 3rem; color: var(--color-accent-orange); margin-bottom: 12px; }
+        .login-card h2 { font-size: 1.2rem; margin-bottom: 4px; }
+        .login-card p { color: var(--color-text-muted); font-size: 0.82rem; margin-bottom: 22px; }
+        .form-group { margin-bottom: 16px; text-align: left; }
+        .form-group label { display: block; font-size: 0.78rem; color: var(--color-text-muted); margin-bottom: 5px; font-weight: 500; }
+        .form-group input { width: 100%; padding: 12px 14px; background: var(--bg-main); border: 1px solid var(--border-gold); border-radius: 8px; color: var(--color-text-main); font-size: 0.9rem; font-family: var(--font-primary); box-sizing: border-box; outline: none; transition: border-color 0.2s; }
+        .form-group input:focus { border-color: var(--color-accent-orange); }
+        .btn-login { width: 100%; padding: 12px; background: var(--color-accent-orange); color: #000; border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; font-family: var(--font-primary); cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+        .btn-login:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,159,0,0.3); }
+        .error-msg { color: #ff5252; font-size: 0.78rem; margin-top: 12px; min-height: 20px; }
+        .back-link { margin-top: 18px; font-size: 0.78rem; }
+        .back-link a { color: var(--color-text-muted); text-decoration: none; }
+        .back-link a:hover { color: var(--color-accent-orange); }
+        .checklist { display: none; margin-top: 16px; }
+        .checklist.show { display: block; }
+        .checklist i { font-size: 2.5rem; color: #4caf50; margin-bottom: 8px; }
+        .checklist h3 { font-size: 1.1rem; margin-bottom: 4px; }
+        .checklist p { font-size: 0.8rem; color: var(--color-text-muted); }
+        .input-wrapper { position: relative; }
+        .input-wrapper .toggle-password { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--color-text-muted); transition: color 0.2s; }
+        .input-wrapper .toggle-password:hover { color: var(--color-accent-orange); }
+    </style>
+</head>
+<body>
+    <div class="login-card" id="loginCard">
+        <div class="icon"><i class="fas fa-truck"></i></div>
+        <h2>Login Kurir</h2>
+        <p>Masuk dengan akun kurir Anda</p>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="contoh@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <div class="input-wrapper">
+                <input type="password" id="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()">
+                <i class="fa-solid fa-eye toggle-password"></i>
+            </div>
+        </div>
+        <button class="btn-login" id="btnLogin" onclick="handleLogin()"><i class="fas fa-sign-in-alt"></i> Masuk</button>
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="checklist" id="checklist">
+            <i class="fas fa-check-circle"></i>
+            <h3>Login Berhasil!</h3>
+            <p>Mengarahkan ke dashboard...</p>
+        </div>
+        <div class="back-link"><a href="../user/login.html"><i class="fas fa-arrow-left"></i> Kembali</a></div>
+    </div>
+
+    <script src="../../Assets/js/api.js"></script>
+    <script>
+        async function handleLogin() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const btn = document.getElementById('btnLogin');
+            const err = document.getElementById('errorMsg');
+            err.textContent = '';
+
+            if (!email || !password) { err.textContent = 'Email dan password wajib diisi'; return; }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+
+            try {
+                const res = await api.request('POST', '/login', { email, password });
+                if (res.role !== 'kurir') {
+                    err.textContent = 'Akun ini bukan kurir';
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
+                    return;
+                }
+                sessionStorage.setItem('mrkicks_user', JSON.stringify(res));
+                document.getElementById('checklist').classList.add('show');
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+            } catch (e) {
+                err.textContent = e.message || 'Email atau password salah';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
+            }
+        }
+
+        document.querySelectorAll('.toggle-password').forEach(el => {
+            el.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('input');
+                if (!input) return;
+                const type = input.getAttribute('type');
+                input.setAttribute('type', type === 'password' ? 'text' : 'password');
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
+        });
+    </script>
+</body>
+</html>

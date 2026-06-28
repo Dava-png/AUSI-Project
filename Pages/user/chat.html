@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Mr. Kicks Mal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../Assets/css/kicks.css">
+</head>
+<body>
+
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-inner">
+                    <i class="fa-solid fa-shoe-prints logo-icon"></i>
+                    <div>
+                        <div class="logo-text">Mr. <span>Kicks</span></div>
+                        <div class="logo-sub">— MAL —</div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="beranda.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Home page</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="products.html" class="nav-link">
+                        <i class="fas fa-box"></i>
+                        <span>Product</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="services.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Our services</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="orders.html" class="nav-link">
+                        <i class="fas fa-file-alt"></i>
+                        <span>My orders</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="history.html" class="nav-link">
+                        <i class="fas fa-clock"></i>
+                        <span>History</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link active">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Chat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="logout-section">
+                <button class="logout-btn" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <h4>Halo, Tol !</h4>
+                        <p>Welcome back</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Page -->
+            <section class="page-section active">
+                <div class="page-header">
+                    <h1 class="page-title">Chat</h1>
+                    <p class="page-subtitle">Hubungi kami untuk bantuan.</p>
+                </div>
+                <div class="chat-page-layout">
+                    <div class="chat-page-body" id="chatPageBody"></div>
+                    <div class="chat-page-footer">
+                        <input type="text" id="chatPageInput" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') sendChatPage()">
+                        <button class="chat-send-btn" onclick="sendChatPage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Chat Bubble -->
+    <div class="chat-bubble" id="chatBubble" onclick="toggleChat()">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+
+    <!-- Admin Picker Panel (bukan untuk chat, hanya pilih admin) -->
+    <div class="chat-panel" id="chatPanel">
+        <div class="chat-panel-header">
+            <div class="chat-panel-user">
+                <div class="chat-panel-avatar">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <div>
+                    <h4 class="chat-panel-header-title">Pilih Admin</h4>
+                    <p class="chat-panel-header-status"></p>
+                </div>
+            </div>
+            <button class="chat-panel-close" onclick="toggleChat()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chat-panel-body" id="chatBody"></div>
+    </div>
+
+    <script src="../../Assets/js/api.js"></script>
+    <script src="../../Assets/js/kicks.js"></script>
+    <script>
+        async function sendChatPage() {
+            const input = document.getElementById('chatPageInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const body = document.getElementById('chatPageBody');
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+            body.innerHTML += '<div class="chat-msg user"><div class="chat-msg-content"><p>' + text + '</p><span class="chat-msg-time">' + time + '</span></div></div>';
+            body.scrollTop = body.scrollHeight;
+            input.value = '';
+
+            try {
+                const admin = sessionStorage.getItem('mrkicks_chat_admin') || '';
+                const chats = await api.getChats();
+                let chatObj = chats.find(c => c.admin === admin);
+                let chatId;
+                if (chatObj) {
+                    chatId = chatObj.id;
+                } else {
+                    const newChat = await api.createChat({ admin: admin });
+                    chatId = newChat.id;
+                }
+                await api.sendMessage(chatId, text, 'user');
+            } catch (e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                const admin = sessionStorage.getItem('mrkicks_chat_admin') || '';
+                const chats = await api.getChats();
+                const chatObj = chats.find(c => c.admin === admin) || null;
+                if (chatObj) {
+                    const messages = await api.getMessages(chatObj.id);
+                    const body = document.getElementById('chatPageBody');
+                    body.innerHTML = '';
+                    messages.forEach(m => {
+                        const cls = m.sender === 'admin' ? 'admin' : 'user';
+                        body.innerHTML += '<div class="chat-msg ' + cls + '"><div class="chat-msg-content"><p>' + m.text + '</p><span class="chat-msg-time">' + m.time + '</span></div></div>';
+                    });
+                    body.scrollTop = body.scrollHeight;
+                }
+            } catch (e) {}
+        });
+    </script>
+</body>
+</html>

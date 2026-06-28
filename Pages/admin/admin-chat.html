@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Mr. Kicks Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../Assets/css/kicks.css">
+    <link rel="stylesheet" href="../../Assets/css/admin.css">
+</head>
+<body>
+
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-inner">
+                    <i class="fa-solid fa-shoe-prints logo-icon"></i>
+                    <div>
+                        <div class="logo-text">Mr. <span>Kicks</span></div>
+                        <div class="logo-sub">— ADMIN —</div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="admin.html" class="nav-link">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-products.html" class="nav-link">
+                        <i class="fas fa-box"></i>
+                        <span>Products</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-orders.html" class="nav-link">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-chat.html" class="nav-link active">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Chat</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="logout-section">
+                <button class="logout-btn" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log out</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="user-info">
+                        <h4>Admin Panel</h4>
+                        <p>Customer Chat</p>
+                    </div>
+                </div>
+            </div>
+
+            <section class="page-section active">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Chat</h1>
+                        <p class="page-subtitle">Balas pesan pelanggan.</p>
+                    </div>
+                </div>
+
+                <div class="admin-content">
+                    <div class="chat-admin-layout">
+                        <div class="chat-conversations" id="chat-conversations"></div>
+                        <div class="chat-admin-main">
+                            <div class="chat-admin-header" id="chat-admin-header">Pilih percakapan</div>
+                            <div class="chat-admin-body" id="chat-admin-body">
+                                <div class="chat-admin-empty">
+                                    <div>
+                                        <i class="fas fa-comment-dots" style="font-size:36px;opacity:0.3;display:block;margin-bottom:12px;"></i>
+                                        Pilih percakapan dari daftar di samping untuk mulai membalas pesan.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chat-admin-footer">
+                                <input type="text" id="admin-chat-input" placeholder="Ketik balasan..." disabled>
+                                <button id="admin-chat-send" disabled onclick="sendAdminReply()"><i class="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toast-msg">Berhasil disimpan</span></div>
+
+    <script src="../../Assets/js/api.js"></script>
+    <script src="../../Assets/js/kicks.js"></script>
+    <script src="../../Assets/js/admin.js"></script>
+    <script>
+        let selectedChatConv = null;
+
+        async function renderChats() {
+            const d = await getData();
+            const container = document.getElementById('chat-conversations');
+            container.innerHTML = '';
+            if (d.chats.length === 0) {
+                container.innerHTML = '<div class="chat-conv-empty"><i class="fas fa-comment-dots" style="font-size:28px;opacity:0.3;display:block;margin-bottom:10px;"></i>Belum ada percakapan</div>';
+                return;
+            }
+            d.chats.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'chat-conv-item' + (selectedChatConv === c.id ? ' active' : '');
+                const unreadHtml = c.unread > 0 ? ' <span class="conv-unread">' + c.unread + '</span>' : '';
+                const adminTag = c.admin ? '<span class="conv-admin">' + c.admin + '</span>' : '';
+                div.innerHTML = '<div class="conv-name">' + c.customer + adminTag + unreadHtml + '</div><div class="conv-last">' + c.lastMessage + '</div><div class="conv-time">' + c.lastTime + '</div>';
+                div.onclick = function () { selectConversation(c.id); };
+                container.appendChild(div);
+            });
+        }
+
+        async function selectConversation(convId) {
+            selectedChatConv = convId;
+            const d = await getData();
+            const conv = d.chats.find(c => c.id === convId);
+            if (!conv) return;
+            document.getElementById('chat-admin-header').textContent = 'Chat dengan ' + conv.customer;
+            document.getElementById('admin-chat-input').disabled = false;
+            document.getElementById('admin-chat-send').disabled = false;
+            const body = document.getElementById('chat-admin-body');
+            body.innerHTML = '';
+            const messages = await api.getMessages(convId);
+            messages.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'chat-msg ' + (m.sender === 'admin' ? 'admin' : 'user');
+                div.innerHTML = '<div class="chat-msg-content"><p>' + m.text + '</p><span class="chat-msg-time">' + m.date + ' ' + m.time + '</span></div>';
+                body.appendChild(div);
+            });
+            await api.markRead(convId);
+            await renderChats();
+            body.scrollTop = body.scrollHeight;
+        }
+
+        async function sendAdminReply() {
+            const input = document.getElementById('admin-chat-input');
+            const text = input.value.trim();
+            if (!text || !selectedChatConv) return;
+            try {
+                await api.sendMessage(selectedChatConv, text, 'admin');
+                input.value = '';
+                await selectConversation(selectedChatConv);
+                showToast('Pesan terkirim');
+            } catch (err) {
+                showToast('Gagal mengirim pesan');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const session = JSON.parse(sessionStorage.getItem('mrkicks_user') || '{}');
+            if (session.role !== 'admin') { window.location.href = '../login.html'; return; }
+            await seedData();
+            await renderChats();
+            const toggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            if (toggle && sidebar) { toggle.addEventListener('click', function () { sidebar.classList.toggle('active'); }); }
+        });
+    </script>
+</body>
+</html>

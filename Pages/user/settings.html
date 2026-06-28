@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Mr. Kicks Mal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../Assets/css/kicks.css">
+</head>
+<body>
+
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-inner">
+                    <i class="fa-solid fa-shoe-prints logo-icon"></i>
+                    <div>
+                        <div class="logo-text">Mr. <span>Kicks</span></div>
+                        <div class="logo-sub">— MAL —</div>
+                    </div>
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="beranda.html" class="nav-link"><i class="fas fa-home"></i><span>Home page</span></a></li>
+                <li class="nav-item"><a href="products.html" class="nav-link"><i class="fas fa-box"></i><span>Product</span></a></li>
+                <li class="nav-item"><a href="services.html" class="nav-link"><i class="fas fa-th-large"></i><span>Our services</span></a></li>
+                <li class="nav-item"><a href="orders.html" class="nav-link"><i class="fas fa-file-alt"></i><span>My orders</span></a></li>
+                <li class="nav-item"><a href="history.html" class="nav-link"><i class="fas fa-clock"></i><span>History</span></a></li>
+                <li class="nav-item"><a href="chat.html" class="nav-link"><i class="fas fa-comment-dots"></i><span>Chat</span></a></li>
+                <li class="nav-item"><a href="settings.html" class="nav-link active"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+            </ul>
+
+            <div class="logout-section">
+                <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i><span>Log out</span></button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="user-profile">
+                    <div class="user-avatar"><i class="fas fa-user"></i></div>
+                    <div class="user-info"><h4 id="greeting">Halo!</h4><p>Welcome back</p></div>
+                </div>
+            </div>
+
+            <section class="page-section active">
+                <div class="page-header">
+                    <h1 class="page-title">Settings</h1>
+                    <p class="page-subtitle">Kelola profil dan preferensi akun Anda.</p>
+                </div>
+
+                <div class="settings-grid">
+
+                    <!-- Profile -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fas fa-user-circle"></i>
+                            <div>
+                                <h3>Profil</h3>
+                                <p>Informasi dasar akun Anda</p>
+                            </div>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="profile-avatar-row">
+                                <div class="profile-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <p class="profile-name" id="profileName">-</p>
+                                    <p class="profile-email" id="profileEmail">-</p>
+                                </div>
+                                <button class="settings-btn" id="btnSaveProfile">Simpan</button>
+                            </div>
+                            <div class="settings-field">
+                                <label>Nama Lengkap</label>
+                                <input type="text" id="inputName" placeholder="Nama lengkap">
+                            </div>
+                            <div class="settings-field">
+                                <label>Email</label>
+                                <input type="email" id="inputEmail" placeholder="Email">
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Security -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <h3>Keamanan</h3>
+                                <p>Ubah kata sandi dan pengaturan login</p>
+                            </div>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="settings-field">
+                                <label>Kata Sandi Lama</label>
+                                <div class="input-wrapper">
+                                    <input type="password" id="oldPass" placeholder="Masukkan kata sandi lama">
+                                    <i class="fa-solid fa-eye toggle-password"></i>
+                                </div>
+                            </div>
+                            <div class="settings-field">
+                                <label>Kata Sandi Baru</label>
+                                <div class="input-wrapper">
+                                    <input type="password" id="newPass" placeholder="Minimal 8 karakter">
+                                    <i class="fa-solid fa-eye toggle-password"></i>
+                                </div>
+                            </div>
+                            <div class="settings-field">
+                                <label>Konfirmasi Kata Sandi</label>
+                                <div class="input-wrapper">
+                                    <input type="password" id="confirmPass" placeholder="Ulangi kata sandi baru">
+                                    <i class="fa-solid fa-eye toggle-password"></i>
+                                </div>
+                            </div>
+                            <button class="settings-btn" id="btnSavePass" style="margin-top: 5px;">Perbarui Kata Sandi</button>
+                        </div>
+                    </div>
+
+                    <!-- About -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <h3>Tentang Aplikasi</h3>
+                                <p>Informasi versi dan kontak</p>
+                            </div>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="about-row">
+                                <span class="about-label">Versi</span>
+                                <span class="about-value">v1.0.0</span>
+                            </div>
+                            <div class="about-row">
+                                <span class="about-label">Aplikasi</span>
+                                <span class="about-value">Mr. Kicks Mal</span>
+                            </div>
+                            <div class="about-row">
+                                <span class="about-label">Kontak</span>
+                                <span class="about-value">mr.kicks@gmail.com</span>
+                            </div>
+                            <div class="about-row">
+                                <span class="about-label">WhatsApp</span>
+                                <span class="about-value">+62 812-3456-7890</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../Assets/js/api.js"></script>
+    <script src="../../Assets/js/kicks.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                const user = await api.getUser();
+                document.getElementById('profileName').textContent = user.name;
+                document.getElementById('profileEmail').textContent = user.email;
+                document.getElementById('inputName').value = user.name;
+                document.getElementById('inputEmail').value = user.email;
+                document.getElementById('greeting').textContent = 'Halo, ' + user.name + ' !';
+            } catch (e) {}
+        });
+
+        function syncSession() {
+            const stored = sessionStorage.getItem('mrkicks_user');
+            if (stored) {
+                try {
+                    const s = JSON.parse(stored);
+                    const name = document.getElementById('inputName').value.trim();
+                    const email = document.getElementById('inputEmail').value.trim();
+                    s.name = name;
+                    s.email = email;
+                    sessionStorage.setItem('mrkicks_user', JSON.stringify(s));
+                } catch (e) {}
+            }
+        }
+
+        document.getElementById('btnSaveProfile').addEventListener('click', async function () {
+            const name = document.getElementById('inputName').value.trim();
+            const email = document.getElementById('inputEmail').value.trim();
+            if (!name || !email) { showToast('Nama dan email wajib diisi'); return; }
+            try {
+                await api.updateUser({ name, email });
+                document.getElementById('profileName').textContent = name;
+                document.getElementById('profileEmail').textContent = email;
+                syncSession();
+                showToast('Profil berhasil diperbarui');
+            } catch (err) {
+                showToast('Gagal: ' + err.message);
+            }
+        });
+
+        document.getElementById('btnSavePass').addEventListener('click', async function () {
+            const inputs = [
+                document.getElementById('oldPass'),
+                document.getElementById('newPass'),
+                document.getElementById('confirmPass')
+            ];
+            const oldPw = inputs[0].value.trim();
+            const newPw = inputs[1].value.trim();
+            const confirmPw = inputs[2].value.trim();
+            if (!oldPw || !newPw || !confirmPw) { showToast('Lengkapi semua field password'); return; }
+            if (newPw.length < 8) { showToast('Password minimal 8 karakter'); return; }
+            if (newPw !== confirmPw) { showToast('Konfirmasi password tidak cocok'); return; }
+            try {
+                await api.updateUser({ password: newPw });
+                showToast('Password berhasil diperbarui');
+                inputs.forEach(i => i.value = '');
+            } catch (err) {
+                showToast('Gagal: ' + err.message);
+            }
+        });
+
+        document.querySelectorAll('.toggle-password').forEach(el => {
+            el.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('input');
+                if (!input) return;
+                const type = input.getAttribute('type');
+                input.setAttribute('type', type === 'password' ? 'text' : 'password');
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
+        });
+    </script>
+</body>
+</html>

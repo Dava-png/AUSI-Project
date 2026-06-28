@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buat Pesanan - Mr. Kicks Mal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../Assets/css/kicks.css">
+    <style>
+        .payment-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(2, 11, 45, 0.95);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .payment-overlay.open {
+            display: flex;
+        }
+        .payment-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .payment-box h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .payment-box p {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            margin-bottom: 20px;
+        }
+        .qris-image {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border-radius: 12px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+        .qris-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .countdown {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--color-accent-yellow);
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        .countdown.warning {
+            color: #ff4a4a;
+            animation: pulse 0.5s ease infinite alternate;
+        }
+        @keyframes pulse {
+            from { opacity: 1; }
+            to { opacity: 0.4; }
+        }
+        .btn-paid {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            background: #22c55e;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            font-family: var(--font-primary);
+        }
+        .btn-paid:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+        }
+        .btn-cancel-payment {
+            margin-top: 10px;
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            font-size: 13px;
+            cursor: pointer;
+            font-family: var(--font-primary);
+            text-decoration: underline;
+        }
+        .btn-cancel-payment:hover {
+            color: white;
+        }
+        .payment-status {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .payment-status.success {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+        .payment-status.failed {
+            background: rgba(255, 74, 74, 0.15);
+            color: #ff4a4a;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-inner">
+                    <i class="fa-solid fa-shoe-prints logo-icon"></i>
+                    <div>
+                        <div class="logo-text">Mr. <span>Kicks</span></div>
+                        <div class="logo-sub">— MAL —</div>
+                    </div>
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="beranda.html" class="nav-link"><i class="fas fa-home"></i><span>Home page</span></a></li>
+                <li class="nav-item"><a href="products.html" class="nav-link"><i class="fas fa-box"></i><span>Product</span></a></li>
+                <li class="nav-item"><a href="services.html" class="nav-link active"><i class="fas fa-th-large"></i><span>Our services</span></a></li>
+                <li class="nav-item"><a href="orders.html" class="nav-link"><i class="fas fa-file-alt"></i><span>My orders</span></a></li>
+                <li class="nav-item"><a href="history.html" class="nav-link"><i class="fas fa-clock"></i><span>History</span></a></li>
+                <li class="nav-item"><a href="chat.html" class="nav-link"><i class="fas fa-comment-dots"></i><span>Chat</span></a></li>
+                <li class="nav-item"><a href="settings.html" class="nav-link"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+            </ul>
+            <div class="logout-section">
+                <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i><span>Log out</span></button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="user-profile">
+                    <div class="user-avatar"><i class="fas fa-user"></i></div>
+                    <div class="user-info"><h4 id="greeting">Halo!</h4><p>Welcome back</p></div>
+                </div>
+            </div>
+
+            <section class="page-section active">
+                <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <h1 class="page-title">Buat Pesanan</h1>
+                        <p class="page-subtitle">Lengkapi data untuk melanjutkan pesanan anda.</p>
+                    </div>
+                    <a href="services.html" id="back-link" class="poster-cta" style="padding:10px 20px;font-size:0.85rem;">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </a>
+                </div>
+
+                <div class="detail-container">
+                    <div class="detail-left">
+                        <h2 class="detail-title" id="detail-title">Fast Clean</h2>
+                        <p class="detail-desc" id="detail-desc">Cuci cepat 1 hari selesai.</p>
+                        <ul class="detail-features" id="detail-features">
+                            <li>Cuci luar</li>
+                            <li>Pengeringan</li>
+                            <li>Pewangi</li>
+                        </ul>
+
+                        <div class="form-sections">
+                            <div class="form-box">
+                                <h4>Informasi Pengiriman</h4>
+                                <p>Pilih atau masukan alamat pengiriman anda</p>
+                                <input type="text" id="pickupAddress" placeholder="Masukan alamat anda" style="margin-top:13px;">
+                            </div>
+                            <div class="form-box">
+                                <h4>Jadwal Pickup</h4>
+                                <p>Pilih tanggal dan waktu untuk pengambilan pesanan (untuk jasa service minimal 3 hari dari hari product diberikan)</p>
+                                <div class="calendar-wrapper">
+                                    <div class="calendar-input" onclick="toggleCalendar()">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span id="calDisplay">Pilih tanggal pickup</span>
+                                        <i class="fas fa-chevron-down" style="font-size:0.75rem;"></i>
+                                    </div>
+                                    <div class="calendar-dropdown" id="calDropdown">
+                                        <div class="calendar-header">
+                                            <button class="calendar-nav" onclick="calMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                                            <h4 id="calTitle">Januari 2026</h4>
+                                            <button class="calendar-nav" onclick="calMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                                        </div>
+                                        <div class="calendar-weekdays">
+                                            <span class="calendar-weekday">Min</span>
+                                            <span class="calendar-weekday">Sen</span>
+                                            <span class="calendar-weekday">Sel</span>
+                                            <span class="calendar-weekday">Rab</span>
+                                            <span class="calendar-weekday">Kam</span>
+                                            <span class="calendar-weekday">Jum</span>
+                                            <span class="calendar-weekday">Sab</span>
+                                        </div>
+                                        <div class="calendar-days" id="calDays"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="order-summary">
+                            <h4>Ringkasan pesanan</h4>
+                            <div class="order-item" id="order-item">JASA LAUNDRY - CUCI FAST CLEAN</div>
+                            <div class="pickup-location" style="font-size:12px;color:var(--color-text-muted);margin-bottom:15px;padding:10px;background:var(--bg-main);border-radius:8px;">
+                                <i class="fas fa-map-marker-alt" style="color:var(--color-accent-orange);margin-right:6px;"></i>
+                                <strong style="color:var(--color-text-main);">Lokasi Pickup:</strong><br>
+                                Jl. Raya Gelam No.250, Pagerwaja, Gelam, Kec. Candi, Kabupaten Sidoarjo, Jawa Timur 61271
+                            </div>
+                            <div class="order-total-label">TOTAL</div>
+                            <div class="order-total-price" id="detail-price">Rp15.000</div>
+                            <button class="btn-order" onclick="togglePayment()">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span id="btn-text">Buat Pesanan</span>
+                            </button>
+                            <button class="btn-contact">
+                                <i class="fab fa-whatsapp"></i>
+                                Kontak Kami
+                            </button>
+                            <div class="quantity-selector" id="qty-selector" style="display:none;">
+                                <button class="qty-btn" onclick="changeQty(-1)">−</button>
+                                <span class="qty-value" id="qty-value">5</span>
+                                <button class="qty-btn" onclick="changeQty(1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-overlay" id="paymentOverlay">
+                        <div class="payment-box">
+                            <h3>Scan QRIS untuk Membayar</h3>
+                            <p>Scan gambar QRIS di bawah menggunakan aplikasi e-wallet atau mobile banking</p>
+                            <div class="qris-image">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=00020101021226680012ID.CO.QRIS.WWW011893600515000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" alt="QRIS">
+                            </div>
+                            <div class="countdown" id="countdown">05:00</div>
+                            <button class="btn-paid" onclick="confirmPayment()">
+                                <i class="fas fa-check-circle"></i> Sudah Dibayar
+                            </button>
+                            <div class="payment-status" id="paymentStatus"></div>
+                            <button class="btn-cancel-payment" onclick="cancelPayment()">Batalkan pembayaran</button>
+                        </div>
+                    </div>
+
+                    <div class="detail-right">
+                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500&h=500&fit=crop" alt="Shoe" class="detail-shoe-image" id="detail-image">
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../Assets/js/api.js"></script>
+    <script src="../../Assets/js/kicks.js"></script>
+    <script>
+        const _user = JSON.parse(sessionStorage.getItem('mrkicks_user') || '{}');
+        if (_user.name) document.getElementById('greeting').textContent = 'Halo, ' + _user.name + ' !';
+
+        // ========== PAYMENT / QRIS ==========
+        let paymentTimer = null;
+        let remainingSeconds = 0;
+
+        function togglePayment() {
+            const address = document.getElementById('pickupAddress').value.trim();
+            const date = document.getElementById('calDisplay').getAttribute('data-value') || '';
+            if (!address && !date) {
+                showToast('Isi alamat atau pilih tanggal pickup terlebih dahulu');
+                return;
+            }
+            const overlay = document.getElementById('paymentOverlay');
+            overlay.classList.add('open');
+            document.getElementById('paymentStatus').textContent = '';
+            document.getElementById('paymentStatus').className = 'payment-status';
+            startCountdown();
+        }
+
+        function startCountdown() {
+            remainingSeconds = 300;
+            updateCountdownDisplay();
+            clearInterval(paymentTimer);
+            paymentTimer = setInterval(() => {
+                remainingSeconds--;
+                updateCountdownDisplay();
+                if (remainingSeconds <= 0) {
+                    terminatePayment();
+                }
+            }, 1000);
+        }
+
+        function updateCountdownDisplay() {
+            const el = document.getElementById('countdown');
+            const mins = Math.floor(remainingSeconds / 60);
+            const secs = remainingSeconds % 60;
+            el.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+            el.classList.toggle('warning', remainingSeconds <= 30);
+        }
+
+        function terminatePayment() {
+            clearInterval(paymentTimer);
+            document.getElementById('paymentStatus').textContent = 'Waktu habis! Pesanan dibatalkan.';
+            document.getElementById('paymentStatus').className = 'payment-status failed';
+            document.querySelector('.btn-paid').disabled = true;
+            setTimeout(() => {
+                document.getElementById('paymentOverlay').classList.remove('open');
+                document.querySelector('.btn-paid').disabled = false;
+            }, 3000);
+        }
+
+        async function confirmPayment() {
+            clearInterval(paymentTimer);
+            try {
+                const item = document.getElementById('order-item').textContent;
+                const price = document.getElementById('detail-price').textContent;
+                const total = parseInt(price.replace(/[^0-9]/g, '')) || 0;
+                const userData = JSON.parse(sessionStorage.getItem('mrkicks_user') || '{}');
+                await api.createOrder({
+                    item: item,
+                    total: total,
+                    customer: userData.name || '',
+                    pickup_address: document.getElementById('pickupAddress').value.trim(),
+                    pickup_date: document.getElementById('calDisplay').getAttribute('data-value') || ''
+                });
+                document.getElementById('paymentStatus').textContent = 'Pembayaran berhasil! Pesanan sedang diproses.';
+                document.getElementById('paymentStatus').className = 'payment-status success';
+            } catch (err) {
+                document.getElementById('paymentStatus').textContent = 'Gagal memproses pesanan: ' + err.message;
+                document.getElementById('paymentStatus').className = 'payment-status failed';
+            }
+            document.querySelector('.btn-paid').disabled = true;
+            document.querySelector('.btn-cancel-payment').style.display = 'none';
+            setTimeout(() => {
+                document.getElementById('paymentOverlay').classList.remove('open');
+                document.querySelector('.btn-paid').disabled = false;
+                document.querySelector('.btn-cancel-payment').style.display = '';
+            }, 3000);
+        }
+
+        function cancelPayment() {
+            clearInterval(paymentTimer);
+            document.getElementById('paymentOverlay').classList.remove('open');
+        }
+
+        // ========== PRODUCT / SERVICE DATA ==========
+        const productsData = {
+            'af1': { title: 'Nike Air Force 1 Low Protro', desc: "Men's shoes", price: 'Rp 2.379.000', image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500&h=500&fit=crop' },
+            'gtcut': { title: 'Nike G.T. Cut 4 EP', desc: 'Basketball Shoes', price: 'Rp 3.169.000', image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&h=500&fit=crop' },
+            'nb327pink': { title: 'New Balance 327 - Pink', desc: "Women's Sneakers", price: 'Rp 1.799.000', image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500&h=500&fit=crop' },
+            'nb327white': { title: 'New Balance 327 - White', desc: 'Casual Sneakers', price: 'Rp 1.799.000', image: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?w=500&h=500&fit=crop' },
+            'pegasus': { title: 'Nike Pegasus 40', desc: 'Running Shoes', price: 'Rp 2.199.000', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop' },
+            'ultraboost': { title: 'Adidas Ultraboost Light', desc: "Men's Running", price: 'Rp 3.500.000', image: 'https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=500&h=500&fit=crop' },
+            'aj1': { title: 'Air Jordan 1 Retro High', desc: 'Basketball Shoes', price: 'Rp 3.999.000', image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=500&h=500&fit=crop' },
+            'chuck70': { title: 'Converse Chuck 70 High', desc: 'Casual Classics', price: 'Rp 1.299.000', image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&h=500&fit=crop' },
+            'clifton': { title: 'Hoka Clifton 9', desc: 'Running Shoes', price: 'Rp 2.799.000', image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500&h=500&fit=crop' },
+            'nb990': { title: 'New Balance 990v6', desc: "Men's Lifestyle", price: 'Rp 3.200.000', image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500&h=500&fit=crop' },
+            'vanspastel': { title: 'Vans Old Skool - Pastel', desc: 'Casual Sneakers', price: 'Rp 1.199.000', image: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?w=500&h=500&fit=crop' },
+            'lebron20': { title: 'LeBron 20 EP', desc: 'Basketball Shoes', price: 'Rp 3.899.000', image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&h=500&fit=crop' },
+            'samba': { title: 'Adidas Samba OG', desc: 'Lifestyle Shoes', price: 'Rp 2.199.000', image: 'https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=500&h=500&fit=crop' },
+            'dunklow': { title: 'Nike Dunk Low Retro', desc: 'Casual Sneakers', price: 'Rp 1.899.000', image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500&h=500&fit=crop' },
+        };
+
+        const params = new URLSearchParams(window.location.search);
+        const type = params.get('type');
+        const id = params.get('service') || params.get('id');
+
+        if (type === 'product') {
+            document.getElementById('back-link').href = 'products.html';
+        }
+
+        if (type === 'product' && id && productsData[id]) {
+            const data = productsData[id];
+            document.getElementById('detail-title').textContent = data.title;
+            document.getElementById('detail-desc').textContent = data.desc;
+            document.getElementById('detail-price').textContent = data.price;
+            document.getElementById('order-item').textContent = 'PEMBELIAN - ' + data.title;
+            document.getElementById('detail-image').src = data.image;
+            const featuresList = document.getElementById('detail-features');
+            featuresList.innerHTML = '<li>Produk original 100%</li><li>Garansi retur 7 hari</li><li>Free shipping</li>';
+            document.getElementById('btn-text').textContent = 'Beli Sekarang';
+        } else if (id && servicesData[id]) {
+            const data = servicesData[id];
+            document.getElementById('detail-title').textContent = data.title;
+            document.getElementById('detail-desc').textContent = data.desc;
+            document.getElementById('detail-price').textContent = data.price;
+            document.getElementById('order-item').textContent = data.orderText;
+            document.getElementById('detail-image').src = data.image;
+            const featuresList = document.getElementById('detail-features');
+            featuresList.innerHTML = '';
+            data.features.forEach(f => {
+                const li = document.createElement('li');
+                li.textContent = f;
+                featuresList.appendChild(li);
+            });
+        }
+
+        // ========== CALENDAR PICKER ==========
+        let calDate = new Date();
+        let calSelected = null;
+
+        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        function toggleCalendar() {
+            const dd = document.getElementById('calDropdown');
+            dd.classList.toggle('open');
+            if (dd.classList.contains('open')) renderCalendar();
+        }
+
+        function calMonth(delta) {
+            calDate.setMonth(calDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const title = document.getElementById('calTitle');
+            const grid = document.getElementById('calDays');
+            const y = calDate.getFullYear();
+            const m = calDate.getMonth();
+            title.textContent = monthNames[m] + ' ' + y;
+
+            const firstDay = new Date(y, m, 1).getDay();
+            const daysInMonth = new Date(y, m + 1, 0).getDate();
+            const today = new Date();
+            const minDate = new Date();
+            minDate.setDate(minDate.getDate() + 3); // minimal 3 hari
+
+            grid.innerHTML = '';
+
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('button');
+                empty.className = 'calendar-day empty';
+                empty.disabled = true;
+                grid.appendChild(empty);
+            }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const btn = document.createElement('button');
+                btn.className = 'calendar-day';
+                btn.textContent = d;
+
+                const dateObj = new Date(y, m, d);
+                const isToday = dateObj.toDateString() === today.toDateString();
+                const isPast = dateObj < minDate;
+                const isSelected = calSelected && dateObj.toDateString() === calSelected.toDateString();
+
+                if (isToday) btn.classList.add('today');
+                if (isSelected) btn.classList.add('selected');
+                if (isPast) btn.classList.add('disabled');
+
+                if (!isPast) {
+                    btn.onclick = function () { selectDate(y, m, d); };
+                }
+                grid.appendChild(btn);
+            }
+        }
+
+        function selectDate(y, m, d) {
+            calSelected = new Date(y, m, d);
+            const display = document.getElementById('calDisplay');
+            const formatted = String(d).padStart(2, '0') + ' ' + monthNames[m] + ' ' + y;
+            display.textContent = formatted;
+            display.className = 'selected';
+            display.setAttribute('data-value', y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'));
+            document.getElementById('calDropdown').classList.remove('open');
+        }
+
+        // Close calendar on outside click
+        document.addEventListener('click', function (e) {
+            const wrapper = document.querySelector('.calendar-wrapper');
+            const dd = document.getElementById('calDropdown');
+            if (wrapper && dd && !wrapper.contains(e.target)) {
+                dd.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>
